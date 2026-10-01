@@ -22,6 +22,7 @@ const logoutBtn = document.getElementById('logout-btn');
 
 const balancePesosEfectivo = document.getElementById('balance-pesos-efectivo');
 const balancePesosBelo = document.getElementById('balance-pesos-belo');
+const balanceTotalPesos = document.getElementById('balance-total-pesos');
 const balanceDolaresEfectivo = document.getElementById('balance-dolares-efectivo');
 
 const configForm = document.getElementById('config-form');
@@ -51,7 +52,6 @@ let inicialPesosEfectivo = 0;
 let inicialPesosBelo = 0;
 let inicialDolaresEfectivo = 0;
 
-// Autocompletar fecha y hora actual por defecto en los formularios
 window.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isLoggedIn') === 'true') {
         mostrarApp();
@@ -116,7 +116,7 @@ configForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Registrar Gasto en Pesos (Efectivo o Belo)
+// Registrar Gasto en Pesos
 expensePesosForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const fecha = pesosFecha.value;
@@ -129,7 +129,7 @@ expensePesosForm.addEventListener('submit', async (e) => {
         try {
             await addDoc(collection(db, "gastos"), {
                 tipo: 'pesos',
-                cuenta: cuenta, // 'efectivo' o 'belo'
+                cuenta: cuenta,
                 fecha: fecha,
                 hora: hora,
                 detalle: detalle,
@@ -137,7 +137,6 @@ expensePesosForm.addEventListener('submit', async (e) => {
                 timestamp: new Date()
             });
             expensePesosForm.reset();
-            // Restaurar fecha y hora actual
             const ahora = new Date();
             pesosFecha.value = ahora.toISOString().split('T')[0];
             pesosHora.value = ahora.toTimeString().slice(0,5);
@@ -168,7 +167,6 @@ expenseDolaresForm.addEventListener('submit', async (e) => {
                 timestamp: new Date()
             });
             expenseDolaresForm.reset();
-            // Restaurar fecha y hora actual
             const ahora = new Date();
             dolaresFecha.value = ahora.toISOString().split('T')[0];
             dolaresHora.value = ahora.toTimeString().slice(0,5);
@@ -179,9 +177,8 @@ expenseDolaresForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Sincronización en tiempo real con Firebase
+// Sincronización en tiempo real
 function sincronizarDatos() {
-    // Escuchar configuración inicial
     onSnapshot(doc(db, "configuracion", "general"), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
@@ -195,14 +192,12 @@ function sincronizarDatos() {
         }
     });
 
-    // Escuchar lista de gastos
     onSnapshot(collection(db, "gastos"), (snapshot) => {
         let gastos = [];
         snapshot.forEach((docItem) => {
             gastos.push({ id: docItem.id, ...docItem.data() });
         });
 
-        // Ordenar por fecha y hora descendente
         gastos.sort((a, b) => new Date(`${b.fecha}T${b.hora || '00:00'}`) - new Date(`${a.fecha}T${a.hora || '00:00'}`));
 
         actualizarPantalla(gastos);
@@ -260,22 +255,25 @@ function actualizarPantalla(gastos) {
         expenseList.appendChild(fila);
     });
 
-    // Calcular balances actuales restando los gastos
+    // Balances actuales
     const disponiblePesosEfectivo = inicialPesosEfectivo - gastadoPesosEfectivo;
     const disponiblePesosBelo = inicialPesosBelo - gastadoPesosBelo;
+    const totalFinalPesos = disponiblePesosEfectivo + disponiblePesosBelo;
     const disponibleDolaresEfectivo = inicialDolaresEfectivo - gastadoDolaresEfectivo;
 
-    // Renderizar en la cabecera
+    // Renderizar en cabecera
     balancePesosEfectivo.textContent = `$ ${disponiblePesosEfectivo.toLocaleString('es-AR', {minimumFractionDigits: 2})} ARS`;
     balancePesosBelo.textContent = `$ ${disponiblePesosBelo.toLocaleString('es-AR', {minimumFractionDigits: 2})} ARS`;
+    balanceTotalPesos.textContent = `$ ${totalFinalPesos.toLocaleString('es-AR', {minimumFractionDigits: 2})} ARS`;
     balanceDolaresEfectivo.textContent = `U$D ${disponibleDolaresEfectivo.toLocaleString('es-AR', {minimumFractionDigits: 2})}`;
 
-    // Alertas visuales en rojo si hay saldo negativo
-    balancePesosEfectivo.className = disponiblePesosEfectivo < 0 ? "text-xl font-bold text-rose-400" : "text-xl font-bold text-sky-300";
-    balancePesosBelo.className = disponiblePesosBelo < 0 ? "text-xl font-bold text-rose-400" : "text-xl font-bold text-cyan-300";
-    balanceDolaresEfectivo.className = disponibleDolaresEfectivo < 0 ? "text-xl font-bold text-rose-400" : "text-xl font-bold text-emerald-300";
+    // Alertas visuales de saldo negativo
+    balancePesosEfectivo.className = disponiblePesosEfectivo < 0 ? "text-lg font-bold text-rose-400" : "text-lg font-bold text-sky-300";
+    balancePesosBelo.className = disponiblePesosBelo < 0 ? "text-lg font-bold text-rose-400" : "text-lg font-bold text-cyan-300";
+    balanceTotalPesos.className = totalFinalPesos < 0 ? "text-xl font-extrabold text-rose-400" : "text-xl font-extrabold text-teal-300";
+    balanceDolaresEfectivo.className = disponibleDolaresEfectivo < 0 ? "text-lg font-bold text-rose-400" : "text-lg font-bold text-emerald-300";
 
-    // Eventos para eliminar registros
+    // Eventos eliminar
     document.querySelectorAll('.btn-eliminar').forEach(boton => {
         boton.addEventListener('click', async (e) => {
             const idGasto = e.target.getAttribute('data-id');
