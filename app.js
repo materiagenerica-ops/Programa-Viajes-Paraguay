@@ -190,6 +190,7 @@ function sincronizarDatos() {
             if (configPesosBelo) configPesosBelo.value = inicialPesosBelo;
             if (configDolaresEfectivo) configDolaresEfectivo.value = inicialDolaresEfectivo;
         }
+        verificarYRecalcular();
     });
 
     onSnapshot(collection(db, "gastos"), (snapshot) => {
@@ -204,17 +205,25 @@ function sincronizarDatos() {
     });
 }
 
+// Variable global temporal para mantener la última snapshot de gastos y recalcular al vuelo
+let cacheGastos = [];
+
 function actualizarPantalla(gastos) {
+    cacheGastos = gastos;
+    verificarYRecalcular();
+}
+
+function verificarYRecalcular() {
     expenseList.innerHTML = "";
     let gastadoPesosEfectivo = 0;
     let gastadoPesosBelo = 0;
     let gastadoDolaresEfectivo = 0;
 
-    if (gastos.length === 0) {
+    if (cacheGastos.length === 0) {
         expenseList.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">No hay gastos registrados todavía.</td></tr>`;
     }
 
-    gastos.forEach((g) => {
+    cacheGastos.forEach((g) => {
         const monto = Number(g.monto) || 0;
         let etiquetaMoneda = "";
         let badgeColor = "";
@@ -255,11 +264,11 @@ function actualizarPantalla(gastos) {
         expenseList.appendChild(fila);
     });
 
-    // Balances actuales
-    const disponiblePesosEfectivo = inicialPesosEfectivo - gastadoPesosEfectivo;
-    const disponiblePesosBelo = inicialPesosBelo - gastadoPesosBelo;
-    const totalFinalPesos = disponiblePesosEfectivo + disponiblePesosBelo;
-    const disponibleDolaresEfectivo = inicialDolaresEfectivo - gastadoDolaresEfectivo;
+    // Cálculos limpios con Number()
+    const disponiblePesosEfectivo = Number(inicialPesosEfectivo) - Number(gastadoPesosEfectivo);
+    const disponiblePesosBelo = Number(inicialPesosBelo) - Number(gastadoPesosBelo);
+    const totalFinalPesos = Number(disponiblePesosEfectivo) + Number(disponiblePesosBelo);
+    const disponibleDolaresEfectivo = Number(inicialDolaresEfectivo) - Number(gastadoDolaresEfectivo);
 
     // Renderizar en cabecera
     balancePesosEfectivo.textContent = `$ ${disponiblePesosEfectivo.toLocaleString('es-AR', {minimumFractionDigits: 2})} ARS`;
@@ -267,7 +276,7 @@ function actualizarPantalla(gastos) {
     balanceTotalPesos.textContent = `$ ${totalFinalPesos.toLocaleString('es-AR', {minimumFractionDigits: 2})} ARS`;
     balanceDolaresEfectivo.textContent = `U$D ${disponibleDolaresEfectivo.toLocaleString('es-AR', {minimumFractionDigits: 2})}`;
 
-    // Alertas visuales de saldo negativo
+    // Estilos de alerta para saldos negativos
     balancePesosEfectivo.className = disponiblePesosEfectivo < 0 ? "text-lg font-bold text-rose-400" : "text-lg font-bold text-sky-300";
     balancePesosBelo.className = disponiblePesosBelo < 0 ? "text-lg font-bold text-rose-400" : "text-lg font-bold text-cyan-300";
     balanceTotalPesos.className = totalFinalPesos < 0 ? "text-xl font-extrabold text-rose-400" : "text-xl font-extrabold text-teal-300";
