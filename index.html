@@ -83,22 +83,30 @@
             </div>
 
             <!-- BALANCES GENERALES EN CABECERA -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <!-- Balance Pesos (Efectivo) -->
                 <div class="card-glass shadow-lg rounded-2xl p-5 border-l-4 border-sky-500">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-sm font-semibold text-slate-300">Pesos (Efectivo)</span>
                         <img src="ar.jpg" alt="Argentina" class="w-8 h-5 object-cover rounded shadow">
                     </div>
-                    <div id="balance-pesos-efectivo" class="text-xl font-bold text-sky-300">$ 0,00 ARS</div>
+                    <div id="balance-pesos-efectivo" class="text-lg font-bold text-sky-300">$ 0,00 ARS</div>
                 </div>
                 <!-- Balance Pesos (Belo) -->
                 <div class="card-glass shadow-lg rounded-2xl p-5 border-l-4 border-cyan-500">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-semibold text-slate-300">Pesos (Cuenta Belo)</span>
+                        <span class="text-sm font-semibold text-slate-300">Pesos (Belo)</span>
                         <img src="ar.jpg" alt="Argentina" class="w-8 h-5 object-cover rounded shadow">
                     </div>
-                    <div id="balance-pesos-belo" class="text-xl font-bold text-cyan-300">$ 0,00 ARS</div>
+                    <div id="balance-pesos-belo" class="text-lg font-bold text-cyan-300">$ 0,00 ARS</div>
+                </div>
+                <!-- TOTAL FINAL EN PESOS -->
+                <div class="card-glass shadow-lg rounded-2xl p-5 border-l-4 border-teal-400 bg-teal-950/40">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-teal-200">Total Final Pesos</span>
+                        <img src="ar.jpg" alt="Argentina" class="w-8 h-5 object-cover rounded shadow">
+                    </div>
+                    <div id="balance-total-pesos" class="text-xl font-extrabold text-teal-300">$ 0,00 ARS</div>
                 </div>
                 <!-- Balance Dólares (Efectivo) -->
                 <div class="card-glass shadow-lg rounded-2xl p-5 border-l-4 border-emerald-500">
@@ -106,7 +114,7 @@
                         <span class="text-sm font-semibold text-slate-300">Dólares (Efectivo)</span>
                         <img src="py.jpg" alt="Paraguay" class="w-8 h-5 object-cover rounded shadow">
                     </div>
-                    <div id="balance-dolares-efectivo" class="text-xl font-bold text-emerald-300">U$D 0,00</div>
+                    <div id="balance-dolares-efectivo" class="text-lg font-bold text-emerald-300">U$D 0,00</div>
                 </div>
             </div>
 
@@ -200,7 +208,7 @@
                             <label class="block text-sm font-medium text-slate-300 mb-1">Monto (U$D)</label>
                             <input type="number" step="0.01" id="dolares-monto" required placeholder="0.00" class="w-full px-4 py-2 rounded-lg input-dark">
                         </div>
-                        <div class="pt-9"> <!-- Espaciador para alinear alturas -->
+                        <div class="pt-9">
                             <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg shadow transition duration-200">
                                 Registrar Gasto Dólares
                             </button>
